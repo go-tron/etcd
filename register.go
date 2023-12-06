@@ -100,7 +100,7 @@ func NewRegister(conf *RegisterConfig, opts ...RegisterOption) (*Register, error
 		Addr:   conf.Addr,
 		TTL:    conf.TTL,
 	}
-	if err := sr.Register(); err == nil {
+	if err := sr.Register(); err != nil {
 		return nil, err
 	}
 	return sr, nil
