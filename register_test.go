@@ -31,9 +31,6 @@ func TestNewRegister(t *testing.T) {
 	if err := register.Register(); err != nil {
 		t.Log(err)
 	}
-	if err := register.Register(); err != nil {
-		t.Log(err)
-	}
 
 	go func() {
 		for {

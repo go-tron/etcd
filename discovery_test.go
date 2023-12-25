@@ -11,7 +11,7 @@ func TestNewDiscovery(t *testing.T) {
 		AppName:      "test-app",
 		EtcdInstance: nil,
 		EtcdConfig: &Config{
-			Endpoints:   []string{"http://127.0.0.1:6079", "http://127.0.0.1:6179", "http://127.0.0.1:6279"},
+			Endpoints:   []string{"http://127.0.0.1:10179", "http://127.0.0.1:10279", "http://127.0.0.1:10379"},
 			Username:    "root",
 			Password:    "Pf*rm1D^V&hBDAKC",
 			DialTimeout: 5 * time.Second,
@@ -33,12 +33,12 @@ func TestNewDiscovery(t *testing.T) {
 		}
 	}()
 
-	//go func() {
-	//	for true {
-	//		time.Sleep(time.Second)
-	//		fmt.Println(sr.GetList())
-	//	}
-	//}()
+	go func() {
+		for {
+			time.Sleep(time.Second)
+			fmt.Println(sr.GetList())
+		}
+	}()
 
 	fmt.Println("start")
 
