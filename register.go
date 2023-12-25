@@ -112,11 +112,15 @@ type Register struct {
 	Node      string
 	Addr      string
 	TTL       int64
+	Closed    bool
 	leaseID   clientv3.LeaseID
 	leaseChan <-chan *clientv3.LeaseKeepAliveResponse
 }
 
 func (s *Register) Register() error {
+	if !s.Closed {
+		return nil
+	}
 	grant, err := s.Client.Grant(context.Background(), s.TTL)
 	if err != nil {
 		return err
@@ -137,7 +141,10 @@ func (s *Register) Register() error {
 
 func (s *Register) Watch() {
 	go func() {
-		for _ = range s.leaseChan {
+		for range s.leaseChan {
+		}
+		if s.Closed {
+			return
 		}
 		succeed := false
 		for !succeed {
@@ -150,6 +157,11 @@ func (s *Register) Watch() {
 }
 
 func (s *Register) Close() error {
+	s.Closed = true
 	_, err := s.Client.Revoke(context.Background(), s.leaseID)
-	return err
+	if err != nil {
+		s.Closed = false
+		return err
+	}
+	return nil
 }
