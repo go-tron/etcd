@@ -6,6 +6,7 @@ import (
 	"github.com/go-tron/config"
 	"github.com/go-tron/logger"
 	clientv3 "go.etcd.io/etcd/client/v3"
+	"sync"
 	"time"
 )
 
@@ -107,6 +108,7 @@ func NewRegister(conf *RegisterConfig, opts ...RegisterOption) (*Register, error
 }
 
 type Register struct {
+	mu sync.Mutex
 	*Client
 	Name      string
 	Node      string
@@ -117,9 +119,15 @@ type Register struct {
 	leaseChan <-chan *clientv3.LeaseKeepAliveResponse
 }
 
+func (s *Register) Registered() bool {
+	return s.leaseID != 0
+}
+
 func (s *Register) Register() error {
-	if !s.Closed {
-		return nil
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.Registered() {
+		return errors.New("Registered Already")
 	}
 	grant, err := s.Client.Grant(context.Background(), s.TTL)
 	if err != nil {
@@ -143,6 +151,7 @@ func (s *Register) Watch() {
 	go func() {
 		for range s.leaseChan {
 		}
+		s.leaseID = 0
 		if s.Closed {
 			return
 		}
@@ -157,6 +166,8 @@ func (s *Register) Watch() {
 }
 
 func (s *Register) Close() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.Closed = true
 	_, err := s.Client.Revoke(context.Background(), s.leaseID)
 	if err != nil {
