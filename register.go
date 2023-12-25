@@ -43,7 +43,7 @@ func NewRegisterWithConfig(c *config.Config, opts ...RegisterOption) (*Register,
 	conf := &RegisterConfig{
 		AppName: c.GetString("application.name"),
 		Node:    c.GetString("cluster.podName"),
-		Addr:    c.GetString("cluster.podIP"),
+		Addr:    c.GetString("cluster.podIP") + ":" + c.GetString("application.port"),
 		TTL:     c.GetInt64("etcd.register.ttl"),
 		EtcdConfig: &Config{
 			Endpoints:   c.GetStringSlice("etcd.endpoints"),
