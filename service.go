@@ -125,12 +125,21 @@ func (s *Service[T]) FindNode(nodeName string) (*Node[T], error) {
 	s.NodeList.Range(func(key, value interface{}) bool {
 		if key == nodeName {
 			node = value.(*Node[T])
-			return true
+			return false
 		}
-		return false
+		return true
 	})
 	if node == nil {
 		return nil, errors.New("nodeName not found")
 	}
 	return node, nil
+}
+
+func (s *Service[T]) GetNodeSet() map[string]*Node[T] {
+	var m = make(map[string]*Node[T])
+	s.NodeList.Range(func(k, v interface{}) bool {
+		m[k.(string)] = v.(*Node[T])
+		return true
+	})
+	return m
 }
