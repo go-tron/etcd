@@ -5,6 +5,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
+	"math/rand"
 	"sync"
 	"time"
 )
@@ -142,4 +143,29 @@ func (s *GRPCService[T]) GetNodeSet() map[string]*Node[T] {
 		return true
 	})
 	return m
+}
+
+func (s *GRPCService[T]) FindRandNodeName() (string, error) {
+	m := s.Discovery.GetList()
+	servers := make([]string, 0, len(m))
+	for k := range m {
+		servers = append(servers, k)
+	}
+	if len(servers) == 0 {
+		return "", errors.New("randNodeName not found")
+	}
+	i := rand.Intn(len(servers))
+	return servers[i], nil
+}
+
+func (s *GRPCService[T]) FindRandNode() (*Node[T], error) {
+	name, err := s.FindRandNodeName()
+	if err != nil {
+		return nil, err
+	}
+	node, err := s.FindNode(name)
+	if err != nil {
+		return nil, err
+	}
+	return node, nil
 }
