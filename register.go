@@ -21,6 +21,11 @@ type RegisterConfig struct {
 
 type RegisterOption func(*RegisterConfig)
 
+func RegisterWithAppName(val string) RegisterOption {
+	return func(conf *RegisterConfig) {
+		conf.AppName = val
+	}
+}
 func RegisterWithEtcdInstance(val *Client) RegisterOption {
 	return func(conf *RegisterConfig) {
 		conf.EtcdInstance = val
@@ -31,7 +36,6 @@ func RegisterWithEtcdConfig(val *Config) RegisterOption {
 		conf.EtcdConfig = val
 	}
 }
-
 func MustNewRegisterWithConfig(c *config.Config, opts ...RegisterOption) *Register {
 	d, err := NewRegisterWithConfig(c, opts...)
 	if err != nil {

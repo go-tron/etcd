@@ -26,6 +26,11 @@ type DiscoveryConfig struct {
 }
 type DiscoveryOption func(*DiscoveryConfig)
 
+func DiscoveryWithAppName(val string) DiscoveryOption {
+	return func(conf *DiscoveryConfig) {
+		conf.AppName = val
+	}
+}
 func DiscoveryWithEtcdInstance(val *Client) DiscoveryOption {
 	return func(conf *DiscoveryConfig) {
 		conf.EtcdInstance = val
